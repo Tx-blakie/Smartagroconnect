@@ -2,9 +2,11 @@ import React from 'react';
 import { Container, Row, Col, Button, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Home = () => {
   const { t } = useTranslation();
+  const { currentUser } = useAuth();
 
   return (  
     <>
@@ -21,9 +23,11 @@ const Home = () => {
                 <Button as={Link} to="/products" variant="primary" size="lg">
                   {t('browseProducts')}
                 </Button>
-                <Button as={Link} to="/register" variant="outline-primary" size="lg">
-                  {t('signUpToday')}
-                </Button>
+                {!currentUser && (
+                  <Button as={Link} to="/register" variant="outline-primary" size="lg">
+                    {t('signUpToday')}
+                  </Button>
+                )}
               </div>
             </Col>
             <Col md={6}>
@@ -130,23 +134,25 @@ const Home = () => {
         </Container>
       </div>
 
-      {/* Call to Action */}
-      <Container fluid className="py-5">
-        <Row className="text-center">
-          <Col md={8} className="mx-auto">
-            <h2>{t('readyToJoin')}</h2>
-            <p className="lead mb-4">{t('readyToJoinDesc')}</p>
-            <div className="d-flex gap-3 justify-content-center">
-              <Button as={Link} to="/register" variant="success" size="lg">
-                {t('signUpToday')}
-              </Button>
-              <Button as={Link} to="/about" variant="outline-success" size="lg">
-                {t('learnMore')}
-              </Button>
-            </div>
-          </Col>
-        </Row>
-      </Container>
+      {/* Call to Action - only shown to users who are not logged in */}
+      {!currentUser && (
+        <Container fluid className="py-5">
+          <Row className="text-center">
+            <Col md={8} className="mx-auto">
+              <h2>{t('readyToJoin')}</h2>
+              <p className="lead mb-4">{t('readyToJoinDesc')}</p>
+              <div className="d-flex gap-3 justify-content-center">
+                <Button as={Link} to="/register" variant="success" size="lg">
+                  {t('signUpToday')}
+                </Button>
+                <Button as={Link} to="/about" variant="outline-success" size="lg">
+                  {t('learnMore')}
+                </Button>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      )}
     </>
   );
 };

@@ -16,6 +16,7 @@ import About from './pages/About/About';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import Dashboard from './pages/Dashboard/Dashboard';
+import Profile from './pages/Profile/Profile';
 
 // Protected route component
 const PrivateRoute = ({ element }) => {
@@ -53,6 +54,10 @@ function App() {
             <Route 
               path="/dashboard" 
               element={<PrivateRoute element={<Dashboard />} />} 
+            />
+            <Route
+              path="/profile"
+              element={<PrivateRoute element={<Profile />} />}
             />
           </Routes>
         </main>
