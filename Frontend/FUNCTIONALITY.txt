@@ -1,0 +1,100 @@
+SMART AGROCONNECT FUNCTIONALITY DOCUMENTATION
+====================================
+
+This document explains the features and functionality of the Smart AgroConnect application, 
+which is designed to connect farmers directly with consumers.
+
+PROJECT OVERVIEW
+---------------
+Smart AgroConnect is a digital marketplace that connects verified natural farmers directly 
+with consumers, reducing intermediary costs and ensuring fair pricing. The platform 
+allows farmers to list their agricultural products, which are then verified before being 
+made available to consumers.
+
+CURRENT IMPLEMENTATION
+--------------------
+The current implementation focuses on the Farmer Dashboard UI and includes the following features:
+
+1. CORE COMPONENTS:
+   - Navbar: Navigation bar with links to Home, About, Products, and Farmer dashboard.
+   - Footer: Site-wide footer with navigation links and contact information.
+
+2. PAGES:
+   - Home: Landing page with information about the platform features.
+   - About: Information about the platform's mission and team.
+   - Farmer Dashboard: Summary view of a farmer's products with metrics.
+   - Add Commodity: Form for farmers to add new agricultural products.
+   - Manage Commodities: Table view of all products with filtering and actions.
+
+3. FARMER FUNCTIONALITY:
+   - Dashboard: Provides overview metrics including total products, pending approval count, 
+     approved products count, and a table of recent commodities.
+   - Add Commodity: Form with validation to add new products with details (name, category, 
+     price, quantity, etc.). Products are submitted for admin approval.
+   - Manage Commodities: Displays all products with filtering by status, search functionality, 
+     and actions (edit/delete). Approved products cannot be modified.
+
+COMPONENT FUNCTIONS & FLOW
+-------------------------
+
+1. FARMER DASHBOARD:
+   - Displays metrics: Total products, pending approval, approved products
+   - Shows recent commodities in a table with status indicators
+   - Provides quick action cards for common tasks
+
+2. ADD COMMODITY:
+   - Form validation using Formik and Yup
+   - Fields: Product name, category, description, price, quantity, unit, location, images
+   - Submit for approval: Product is saved and marked as "Pending" for admin review
+   - Success/error handling with user feedback
+
+3. MANAGE COMMODITIES:
+   - Filtering: Filter products by status (All, Pending, Approved, Rejected)
+   - Search: Search products by name
+   - Actions: Edit and Delete functionality (disabled for approved products)
+   - Confirmation dialog for delete action
+
+ROUTES STRUCTURE
+---------------
+- / - Home page
+- /about - About page
+- /products - Product listing page (placeholder)
+- /login - Login page (placeholder)
+- /register - Registration page (placeholder)
+- /farmer/dashboard - Farmer dashboard
+- /farmer/add-commodity - Add commodity form
+- /farmer/manage-commodities - Manage commodities page
+- /farmer/edit-commodity/:id - Edit commodity form with pre-filled data
+
+PLANNED FUTURE FEATURES
+----------------------
+1. User Authentication:
+   - Login/Register functionality
+   - User profile management
+
+2. Admin Dashboard:
+   - Approve/reject commodity submissions
+   - Manage users
+
+3. Product Marketplace:
+   - Consumer browsing and filtering
+   - Product details page
+   - Shopping cart and checkout
+
+4. Order Management:
+   - Order tracking
+   - Delivery options
+
+5. Messaging:
+   - Communication between farmers and consumers
+
+DATA FLOW
+--------
+1. Farmer adds new commodity → Submitted for approval
+2. Admin reviews and approves/rejects
+3. Approved commodities appear in marketplace
+4. Consumers browse and purchase products
+5. Order is placed and fulfilled by farmer
+
+Note: The current implementation only includes the UI components without backend integration.
+When connected to a backend, API calls will replace the mock data currently used. 
