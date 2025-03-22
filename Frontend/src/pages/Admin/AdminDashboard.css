@@ -1,0 +1,94 @@
+.admin-dashboard {
+  min-height: calc(100vh - 76px); /* Adjust based on your navbar height */
+}
+
+.admin-sidebar {
+  background-color: #343a40;
+  color: white;
+  min-height: calc(100vh - 76px);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-header {
+  padding: 20px 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.admin-sidebar .nav-link {
+  color: rgba(255, 255, 255, 0.75);
+  padding: 12px 15px;
+  border-left: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.admin-sidebar .nav-link:hover,
+.admin-sidebar .nav-link.active {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-left-color: #007bff;
+}
+
+.admin-content {
+  padding: 20px;
+  background-color: #f8f9fa;
+}
+
+/* Table styling */
+.admin-table {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.admin-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.admin-table .action-buttons button {
+  margin-right: 5px;
+}
+
+/* Card styling */
+.admin-card {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.admin-card .card-header {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Form styling */
+.admin-form label {
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    position: fixed;
+    z-index: 1000;
+    width: 250px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .admin-sidebar.show {
+    transform: translateX(0);
+  }
+
+  .admin-content {
+    margin-left: 0;
+    width: 100%;
+  }
+}

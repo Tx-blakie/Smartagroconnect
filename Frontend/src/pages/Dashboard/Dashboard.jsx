@@ -1,32 +1,32 @@
-import React, { useEffect } from 'react';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import './Dashboard.css';
+import React, { useEffect } from "react";
+import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import "./Dashboard.css";
 
 const Dashboard = () => {
   const { currentUser, userRole, userProfile, logout } = useAuth();
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     if (!currentUser) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [currentUser, navigate]);
-  
+
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/login');
+      navigate("/login");
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
   };
-  
+
   // Render role-specific dashboard content
   const renderRoleContent = () => {
     switch (userRole) {
-      case 'farmer':
+      case "farmer":
         return (
           <div className="role-content">
             <h3>Farmer Dashboard</h3>
@@ -67,8 +67,8 @@ const Dashboard = () => {
             </Row>
           </div>
         );
-        
-      case 'buyer':
+
+      case "buyer":
         return (
           <div className="role-content">
             <h3>Buyer Dashboard</h3>
@@ -99,9 +99,7 @@ const Dashboard = () => {
                 <Card className="dashboard-card">
                   <Card.Body>
                     <Card.Title>Saved Items</Card.Title>
-                    <Card.Text>
-                      View and manage your saved products
-                    </Card.Text>
+                    <Card.Text>View and manage your saved products</Card.Text>
                     <Button variant="primary">View Saved</Button>
                   </Card.Body>
                 </Card>
@@ -109,8 +107,8 @@ const Dashboard = () => {
             </Row>
           </div>
         );
-        
-      case 'helper':
+
+      case "helper":
         return (
           <div className="role-content">
             <h3>Helper Dashboard</h3>
@@ -141,9 +139,7 @@ const Dashboard = () => {
                 <Card className="dashboard-card">
                   <Card.Body>
                     <Card.Title>Communication</Card.Title>
-                    <Card.Text>
-                      Communicate with farmers and buyers
-                    </Card.Text>
+                    <Card.Text>Communicate with farmers and buyers</Card.Text>
                     <Button variant="primary">Open Chat</Button>
                   </Card.Body>
                 </Card>
@@ -151,8 +147,8 @@ const Dashboard = () => {
             </Row>
           </div>
         );
-        
-      case 'admin':
+
+      case "admin":
         return (
           <div className="role-content">
             <h3>Admin Dashboard</h3>
@@ -161,10 +157,10 @@ const Dashboard = () => {
                 <Card className="dashboard-card">
                   <Card.Body>
                     <Card.Title>User Management</Card.Title>
-                    <Card.Text>
-                      Manage all users of the platform
-                    </Card.Text>
-                    <Button variant="primary">Manage Users</Button>
+                    <Card.Text>Manage all users of the platform</Card.Text>
+                    <Button variant="primary" as={Link} to="/admin/users">
+                      Manage Users
+                    </Button>
                   </Card.Body>
                 </Card>
               </Col>
@@ -172,10 +168,10 @@ const Dashboard = () => {
                 <Card className="dashboard-card">
                   <Card.Body>
                     <Card.Title>Product Verification</Card.Title>
-                    <Card.Text>
-                      Verify and manage product listings
-                    </Card.Text>
-                    <Button variant="primary">View Products</Button>
+                    <Card.Text>Verify and manage product listings</Card.Text>
+                    <Button variant="primary" as={Link} to="/admin/products">
+                      View Products
+                    </Button>
                   </Card.Body>
                 </Card>
               </Col>
@@ -183,17 +179,17 @@ const Dashboard = () => {
                 <Card className="dashboard-card">
                   <Card.Body>
                     <Card.Title>Platform Analytics</Card.Title>
-                    <Card.Text>
-                      View comprehensive platform analytics
-                    </Card.Text>
-                    <Button variant="primary">View Analytics</Button>
+                    <Card.Text>View comprehensive platform analytics</Card.Text>
+                    <Button variant="primary" as={Link} to="/admin/analytics">
+                      View Analytics
+                    </Button>
                   </Card.Body>
                 </Card>
               </Col>
             </Row>
           </div>
         );
-        
+
       default:
         return (
           <div className="role-content">
@@ -203,29 +199,26 @@ const Dashboard = () => {
         );
     }
   };
-  
+
   return (
     <Container className="py-5">
       <div className="dashboard-header">
         <div>
           <h2>Dashboard</h2>
           {userProfile && (
-            <p>Welcome, {userProfile.name} ({userRole})</p>
+            <p>
+              Welcome, {userProfile.name} ({userRole})
+            </p>
           )}
         </div>
-        <Button 
-          variant="outline-danger" 
-          onClick={handleLogout}
-        >
+        <Button variant="outline-danger" onClick={handleLogout}>
           Logout
         </Button>
       </div>
-      
-      <div className="dashboard-content mt-4">
-        {renderRoleContent()}
-      </div>
+
+      <div className="dashboard-content mt-4">{renderRoleContent()}</div>
     </Container>
   );
 };
 
-export default Dashboard; 
+export default Dashboard;
