@@ -18,25 +18,76 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
-  role: {
-    type: String,
-    enum: ['farmer', 'buyer', 'admin'],
-    default: 'farmer'
-  },
   phone: {
     type: String,
+    required: true,
     trim: true
   },
-  location: {
+  role: {
+    type: String,
+    enum: ['farmer', 'buyer', 'helper', 'admin'],
+    required: true
+  },
+  // Address fields
+  state: {
     type: String,
     trim: true
   },
+  district: {
+    type: String,
+    trim: true
+  },
+  taluka: {
+    type: String,
+    trim: true
+  },
+  village: {
+    type: String,
+    trim: true
+  },
+  pincode: {
+    type: String,
+    trim: true
+  },
+  // Document fields
+  panCard: {
+    type: String,
+    trim: true
+  },
+  cancelledCheque: {
+    type: String,
+    trim: true
+  },
+  // Farmer specific fields
+  agricultureCertificate: {
+    type: String,
+    trim: true
+  },
+  // Buyer specific fields
+  gstNumber: {
+    type: String,
+    trim: true
+  },
+  // Helper specific fields
+  qualification: {
+    type: String,
+    trim: true
+  },
+  expertise: {
+    type: String,
+    trim: true
+  },
+  // Common fields
   profileImage: {
     type: String
   },
   isVerified: {
     type: Boolean,
     default: false
+  },
+  firebaseUid: {
+    type: String,
+    trim: true
   }
 }, { 
   timestamps: true 

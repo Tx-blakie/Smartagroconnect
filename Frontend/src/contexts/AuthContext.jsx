@@ -1,19 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  RecaptchaVerifier,
-  signInWithPhoneNumber
-} from 'firebase/auth';
-import { 
-  doc, 
-  getDoc, 
-  setDoc,
-  serverTimestamp
-} from 'firebase/firestore';
-import { auth, db } from '../config/firebase';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 const AuthContext = createContext();
 
@@ -26,90 +14,114 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('token') || null);
   
-  // Create a user with email and password
+  // Register a new user
   async function signup(email, password, userData) {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      
-      // Save additional user data to Firestore
-      await setDoc(doc(db, "users", user.uid), {
+      const response = await axios.post(`${API_URL}/users/register`, {
         ...userData,
         email,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        password
       });
       
-      return user;
+      if (response.data && response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        setToken(response.data.token);
+        setCurrentUser(response.data);
+        setUserRole(response.data.role);
+        setUserProfile(response.data);
+      }
+      
+      return response.data;
     } catch (error) {
+      console.error("Signup error:", error);
       throw error;
     }
   }
   
   // Login with email and password
-  function login(email, password) {
-    return signInWithEmailAndPassword(auth, email, password);
-  }
-  
-  // Setup phone authentication
-  function setupRecaptcha(elementId) {
-    const recaptchaVerifier = new RecaptchaVerifier(auth, elementId, {
-      'size': 'invisible'
-    });
-    return recaptchaVerifier;
-  }
-  
-  // Sign in with phone number
-  function loginWithPhone(phoneNumber, recaptchaVerifier) {
-    return signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+  async function login(email, password) {
+    try {
+      const response = await axios.post(`${API_URL}/users/login`, { 
+        email, 
+        password 
+      });
+      
+      if (response.data && response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        setToken(response.data.token);
+        setCurrentUser(response.data);
+        setUserRole(response.data.role);
+        setUserProfile(response.data);
+      }
+      
+      return response.data;
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
+    }
   }
   
   // Logout
   function logout() {
-    return signOut(auth);
+    localStorage.removeItem('token');
+    setToken(null);
+    setCurrentUser(null);
+    setUserRole(null);
+    setUserProfile(null);
   }
   
   // Fetch user profile
-  async function fetchUserProfile(uid) {
+  async function fetchUserProfile() {
+    if (!token) return null;
+    
     try {
-      const userDoc = await getDoc(doc(db, "users", uid));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        setUserRole(userData.role);
-        setUserProfile(userData);
-        return userData;
+      const response = await axios.get(`${API_URL}/users/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      if (response.data) {
+        setCurrentUser(response.data);
+        setUserRole(response.data.role);
+        setUserProfile(response.data);
+        return response.data;
       }
+      
       return null;
     } catch (error) {
       console.error("Error fetching user profile:", error);
+      
+      // If token is invalid or expired, logout
+      if (error.response && error.response.status === 401) {
+        logout();
+      }
+      
       return null;
     }
   }
   
+  // Check auth status on load
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
-      if (user) {
-        await fetchUserProfile(user.uid);
-      } else {
-        setUserRole(null);
-        setUserProfile(null);
+    const checkAuthStatus = async () => {
+      if (token) {
+        await fetchUserProfile();
       }
       setLoading(false);
-    });
+    };
     
-    return unsubscribe;
-  }, []);
+    checkAuthStatus();
+  }, [token]);
   
   const value = {
     currentUser,
     userRole,
     userProfile,
+    token,
     signup,
     login,
-    loginWithPhone,
-    setupRecaptcha,
     logout,
     fetchUserProfile
   };

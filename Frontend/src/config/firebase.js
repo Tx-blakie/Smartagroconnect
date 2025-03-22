@@ -20,4 +20,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
+// Note: Firebase authentication is now only used for email/password login
+// Phone authentication has been removed
+
 export { app, auth, db, storage }; 
