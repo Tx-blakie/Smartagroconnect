@@ -11,6 +11,7 @@ import LoadingOverlay from "./components/LoadingOverlay/LoadingOverlay";
 import ToastNotification from "./components/ToastNotification/ToastNotification";
 
 // Pages
+<<<<<<< HEAD
 import Home from "./pages/Home/Home";
 import About from "./pages/About/About";
 import Login from "./pages/Login/Login";
@@ -23,6 +24,14 @@ import UserManagement from "./pages/Admin/UserManagement";
 import ProductManagement from "./pages/Admin/ProductManagement";
 import Analytics from "./pages/Admin/Analytics";
 import Settings from "./pages/Admin/Settings";
+=======
+import Home from './pages/Home/Home';
+import About from './pages/About/About';
+import Login from './pages/Login/Login';
+import Register from './pages/Register/Register';
+import Dashboard from './pages/Dashboard/Dashboard';
+import Profile from './pages/Profile/Profile';
+>>>>>>> 8464ac152a7ad5146295b7dc35e8a5912c2cbd09
 
 // Protected route component
 const PrivateRoute = ({ element }) => {
@@ -71,6 +80,7 @@ function App() {
               path="/dashboard"
               element={<PrivateRoute element={<Dashboard />} />}
             />
+<<<<<<< HEAD
 
             {/* Admin Routes */}
             <Route
@@ -83,6 +93,12 @@ function App() {
               <Route path="analytics" element={<Analytics />} />
               <Route path="settings" element={<Settings />} />
             </Route>
+=======
+            <Route
+              path="/profile"
+              element={<PrivateRoute element={<Profile />} />}
+            />
+>>>>>>> 8464ac152a7ad5146295b7dc35e8a5912c2cbd09
           </Routes>
         </main>
         <Footer />
