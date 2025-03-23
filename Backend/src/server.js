@@ -5,8 +5,11 @@ const dotenv = require('dotenv');
 const path = require('path');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
-// Load environment variables
-dotenv.config();
+// Load environment variables with explicit path
+dotenv.config({ path: path.join(__dirname, '../.env') });
+console.log('Environment variables loaded from:', path.join(__dirname, '../.env'));
+console.log('MongoDB URI:', process.env.MONGODB_URI ? 'Set correctly' : 'Not set or incorrect');
+console.log('JWT Secret:', process.env.JWT_SECRET ? 'Set correctly' : 'Not set or incorrect');
 
 const app = express();
 const PORT = process.env.PORT || 5000;

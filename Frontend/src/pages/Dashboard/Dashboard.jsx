@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import { Container, Row, Col, Card, Button, Spinner } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import "./Dashboard.css";
@@ -9,10 +9,28 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!currentUser) {
-      navigate("/login");
+    if (currentUser && userRole) {
+      // Redirect based on user role
+      switch(userRole) {
+        case 'admin':
+          navigate('/admin');
+          break;
+        case 'buyer':
+          navigate('/buyer');
+          break;
+        case 'helper':
+          navigate('/helper');
+          break;
+        case 'farmer':
+          navigate('/farmer');
+          break;
+        default:
+          // If no specific role or unknown role, show generic dashboard
+          // (We'll stay on this page in that case)
+          break;
+      }
     }
-  }, [currentUser, navigate]);
+  }, [currentUser, userRole, navigate]);
 
   const handleLogout = async () => {
     try {
@@ -201,22 +219,16 @@ const Dashboard = () => {
   };
 
   return (
-    <Container className="py-5">
-      <div className="dashboard-header">
-        <div>
-          <h2>Dashboard</h2>
-          {userProfile && (
-            <p>
-              Welcome, {userProfile.name} ({userRole})
-            </p>
-          )}
-        </div>
-        <Button variant="outline-danger" onClick={handleLogout}>
-          Logout
-        </Button>
-      </div>
-
-      <div className="dashboard-content mt-4">{renderRoleContent()}</div>
+    <Container className="py-5 text-center">
+      <h2>Welcome to SmartAgroConnect</h2>
+      {currentUser ? (
+        <>
+          <p>Redirecting to your dashboard...</p>
+          <Spinner animation="border" variant="primary" />
+        </>
+      ) : (
+        <p>Please login to access your dashboard</p>
+      )}
     </Container>
   );
 };

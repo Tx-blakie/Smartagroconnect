@@ -9,7 +9,7 @@ export function useAuth() {
   return useContext(AuthContext);
 }
 
-export function AuthProvider({ children }) {
+export default function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState(null);
@@ -19,11 +19,24 @@ export function AuthProvider({ children }) {
   // Register a new user
   async function signup(email, password, userData) {
     try {
-      const response = await axios.post(`${API_URL}/users/register`, {
-        ...userData,
-        email,
-        password,
-      });
+      let response;
+      
+      // Check if userData is FormData (for file uploads)
+      if (userData instanceof FormData) {
+        // If FormData is already prepared with all fields including email/password
+        response = await axios.post(`${API_URL}/users/register`, userData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+      } else {
+        // Regular JSON data without files
+        response = await axios.post(`${API_URL}/users/register`, {
+          ...userData,
+          email,
+          password,
+        });
+      }
 
       if (response.data && response.data.token) {
         localStorage.setItem("token", response.data.token);
@@ -133,4 +146,5 @@ export function AuthProvider({ children }) {
   );
 }
 
-export default AuthContext;
+// Export AuthContext (not as default) for components that need direct access
+export { AuthContext };

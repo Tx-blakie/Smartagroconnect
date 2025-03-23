@@ -98,37 +98,47 @@ const Register = () => {
     try {
       setLoading(true);
       
-      // Prepare user data for Firestore
-      const userData = {
-        name: formData.name,
-        phone: formData.phone,
-        role: selectedRole,
-        pincode: formData.pincode,
-        state: formData.state,
-        district: formData.district,
-        taluka: formData.taluka,
-        address: formData.address,
-        // Note: File uploads would actually be handled separately with Firebase Storage
-        // This is a placeholder for now
-        documents: {
-          hasPanCard: !!formData.panCard,
-          hasCancelledCheque: !!formData.cancelledCheque,
-          hasAgricultureCertificate: selectedRole === 'farmer' ? !!formData.agricultureCertificate : false
-        }
-      };
+      // Create FormData object for file uploads
+      const formDataObj = new FormData();
       
+      // Add text fields
+      formDataObj.append('name', formData.name);
+      formDataObj.append('email', formData.email);
+      formDataObj.append('password', formData.password);
+      formDataObj.append('phone', formData.phone);
+      formDataObj.append('role', selectedRole);
+      formDataObj.append('pincode', formData.pincode);
+      formDataObj.append('state', formData.state);
+      formDataObj.append('district', formData.district);
+      formDataObj.append('taluka', formData.taluka);
+      formDataObj.append('village', formData.address); // Change address to village to match backend
+      
+      // Add role-specific fields
       if (selectedRole === 'buyer') {
-        userData.gstNumber = formData.gstNumber;
+        formDataObj.append('gstNumber', formData.gstNumber);
       }
       
-      // Create user with email and password
-      await signup(formData.email, formData.password, userData);
+      // Add files
+      if (formData.panCard) {
+        formDataObj.append('panCard', formData.panCard);
+      }
+      if (formData.cancelledCheque) {
+        formDataObj.append('cancelledCheque', formData.cancelledCheque);
+      }
+      if (selectedRole === 'farmer' && formData.agricultureCertificate) {
+        formDataObj.append('agricultureCertificate', formData.agricultureCertificate);
+      }
       
-      // Redirect to login page
-      navigate('/login');
+      // Call signup with email, password, and the FormData object
+      const userData = await signup(formData.email, formData.password, formDataObj);
+      
+      // Redirect to login page on success
+      if (userData) {
+        navigate('/login');
+      }
     } catch (err) {
       console.error("Registration error:", err);
-      setError('Failed to create an account: ' + (err.message || 'Unknown error'));
+      setError('Failed to create an account: ' + (err.response?.data?.message || err.message || 'Unknown error'));
     } finally {
       setLoading(false);
     }

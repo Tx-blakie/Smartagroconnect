@@ -7,6 +7,12 @@ const path = require("path");
 // Register a new user
 exports.registerUser = async (req, res) => {
   try {
+    console.log('Register user request received:', {
+      body: req.body,
+      files: req.files ? Object.keys(req.files) : 'No files',
+      contentType: req.headers['content-type']
+    });
+
     const {
       name,
       email,
@@ -24,6 +30,18 @@ exports.registerUser = async (req, res) => {
       firebaseUid,
     } = req.body;
 
+    // Validation - make sure required fields are present
+    if (!name || !email || !password || !role || !phone) {
+      console.log('Missing required fields:', { 
+        name: !!name, 
+        email: !!email, 
+        password: !!password, 
+        role: !!role, 
+        phone: !!phone 
+      });
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
     // Check if user already exists with this email
     const emailExists = await User.findOne({ email });
     if (emailExists) {
@@ -40,9 +58,17 @@ exports.registerUser = async (req, res) => {
 
     // Hash password if provided (for email/password auth)
     let hashedPassword = null;
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      hashedPassword = await bcrypt.hash(password, salt);
+    try {
+      if (password) {
+        const salt = await bcrypt.genSalt(10);
+        hashedPassword = await bcrypt.hash(password, salt);
+        console.log('Password hashed successfully');
+      } else {
+        return res.status(400).json({ message: "Password is required" });
+      }
+    } catch (hashError) {
+      console.error('Error hashing password:', hashError);
+      return res.status(500).json({ message: "Error processing password", error: hashError.message });
     }
 
     // Handle file uploads - store file paths
@@ -52,22 +78,35 @@ exports.registerUser = async (req, res) => {
     let profileImagePath = "";
 
     if (req.files) {
-      if (req.files.panCard) {
-        panCardPath = req.files.panCard[0].path.replace(/\\/g, "/");
+      console.log('Processing files:', Object.keys(req.files));
+      
+      try {
+        if (req.files.panCard) {
+          panCardPath = req.files.panCard[0].path.replace(/\\/g, "/");
+          console.log('PAN card path:', panCardPath);
+        }
+        if (req.files.cancelledCheque) {
+          cancelledChequePath = req.files.cancelledCheque[0].path.replace(
+            /\\/g,
+            "/"
+          );
+          console.log('Cancelled cheque path:', cancelledChequePath);
+        }
+        if (req.files.agricultureCertificate && role === "farmer") {
+          agricultureCertificatePath =
+            req.files.agricultureCertificate[0].path.replace(/\\/g, "/");
+          console.log('Agriculture certificate path:', agricultureCertificatePath);
+        }
+        if (req.files.profileImage) {
+          profileImagePath = req.files.profileImage[0].path.replace(/\\/g, "/");
+          console.log('Profile image path:', profileImagePath);
+        }
+      } catch (fileError) {
+        console.error('Error processing uploaded files:', fileError);
+        return res.status(400).json({ message: "Error processing uploaded files", error: fileError.message });
       }
-      if (req.files.cancelledCheque) {
-        cancelledChequePath = req.files.cancelledCheque[0].path.replace(
-          /\\/g,
-          "/"
-        );
-      }
-      if (req.files.agricultureCertificate && role === "farmer") {
-        agricultureCertificatePath =
-          req.files.agricultureCertificate[0].path.replace(/\\/g, "/");
-      }
-      if (req.files.profileImage) {
-        profileImagePath = req.files.profileImage[0].path.replace(/\\/g, "/");
-      }
+    } else {
+      console.log('No files were uploaded in the request');
     }
 
     // Create user with all provided fields
@@ -100,23 +139,50 @@ exports.registerUser = async (req, res) => {
       userData.expertise = expertise;
     }
 
-    const user = await User.create(userData);
+    console.log('Creating user with data:', {
+      name: userData.name,
+      email: userData.email,
+      role: userData.role,
+      phone: userData.phone,
+      hasFiles: !!req.files
+    });
 
-    if (user) {
-      res.status(201).json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        phone: user.phone,
-        token: generateToken(user._id),
+    try {
+      const user = await User.create(userData);
+
+      if (user) {
+        console.log('User created successfully:', user._id);
+        
+        // Generate token
+        const token = generateToken(user._id);
+        if (!token) {
+          console.error('Failed to generate token');
+          return res.status(500).json({ message: "Failed to generate authentication token" });
+        }
+        
+        return res.status(201).json({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          token: token,
+        });
+      } else {
+        console.error('User.create did not return a user object');
+        return res.status(400).json({ message: "Invalid user data" });
+      }
+    } catch (dbError) {
+      console.error('Database error creating user:', dbError);
+      return res.status(500).json({ 
+        message: "Database error creating user", 
+        error: dbError.message,
+        code: dbError.code
       });
-    } else {
-      res.status(400).json({ message: "Invalid user data" });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error('Uncaught error in registerUser:', error);
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -460,7 +526,11 @@ exports.deleteUser = async (req, res) => {
 
 // Generate JWT token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+  const secret = process.env.JWT_SECRET || 'fallback_secret_key_for_development';
+  if (!process.env.JWT_SECRET) {
+    console.warn('WARNING: Using fallback JWT secret key. Set JWT_SECRET in .env file for production.');
+  }
+  return jwt.sign({ id }, secret, {
     expiresIn: "30d",
   });
 };

@@ -13,6 +13,7 @@ const {
 } = require("../controllers/userController");
 const { protect, admin } = require("../middleware/authMiddleware");
 const upload = require("../middleware/uploadMiddleware");
+const { handleMulterError } = require("../middleware/uploadMiddleware");
 
 // Files to upload configuration
 const userUpload = upload.fields([
@@ -23,7 +24,7 @@ const userUpload = upload.fields([
 ]);
 
 // Public routes
-router.post("/register", userUpload, registerUser);
+router.post("/register", userUpload, handleMulterError, registerUser);
 router.post("/login", loginUser);
 router.post("/firebase-auth", firebaseAuth);
 
@@ -31,7 +32,7 @@ router.post("/firebase-auth", firebaseAuth);
 router
   .route("/profile")
   .get(protect, getUserProfile)
-  .put(protect, userUpload, updateUserProfile);
+  .put(protect, userUpload, handleMulterError, updateUserProfile);
 
 // Admin routes
 router.route("/admin/users").get(protect, admin, getAllUsers);

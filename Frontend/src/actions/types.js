@@ -1,0 +1,4 @@
+// Helper action types
+export const GET_DASHBOARD_DATA = 'GET_DASHBOARD_DATA';
+export const DASHBOARD_LOADING = 'DASHBOARD_LOADING';
+export const DASHBOARD_ERROR = 'DASHBOARD_ERROR'; 
